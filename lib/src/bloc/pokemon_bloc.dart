@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:pokedex_app/src/api/cafe_api.dart';
+import 'package:pokedex_app/src/helpers/pokemon_numbers.dart';
 import 'package:pokedex_app/src/models/pokemon_info_model.dart';
 import 'package:pokedex_app/src/models/pokemon_model.dart';
-
-// const POKEMONS = ['Charmander', 'Bulbazur', 'Squirtle'];
 
 class PokemonsBloc {
   Stream<String> getType(int pokemonId) async* {
@@ -20,8 +19,27 @@ class PokemonsBloc {
     yield pokemonInfoModel.types![0].type!.name!;
   }
 
+  final Result _selectedPokemon =
+      Result(name: '', url: '', image: '', fullImage: '', type: []);
+
+  selectPokemon(Result pokemon) async* {
+    // Result selectedPokemon =
+    //     Result(name: '', url: '', image: '', fullImage: '', type: []);
+
+    _selectedPokemon.name = pokemon.name;
+    _selectedPokemon.url = pokemon.url;
+    _selectedPokemon.image = pokemon.image;
+    _selectedPokemon.fullImage = pokemon.fullImage;
+    _selectedPokemon.type = pokemon.type;
+
+    yield _selectedPokemon;
+  }
+
+  Stream<Result> get getSelectedPokemon async* {
+    yield _selectedPokemon;
+  }
+
   Stream<List<Result>> get getPokemnos async* {
-    // final List<String> pokemons = [];
     List<Result> pokemonsList = [];
     PokemonModel pokemonModel = PokemonModel(
       count: 0,
@@ -30,7 +48,6 @@ class PokemonsBloc {
       results: [],
     );
 
-    // final resp = await CafeApi.httpGet('/?limit=5');
     Dio _dio = Dio();
     final resp = await _dio.get('https://pokeapi.co/api/v2/pokemon/?limit=150');
 
@@ -43,37 +60,28 @@ class PokemonsBloc {
 
       info = PokemonInfoModel.fromMap(tipo.data);
 
-      // print(info.types![0].type!.name!);
-
       yield pokemonsList;
-      // final type = getType(index + 1);
-      // print(type.first.toString());
-      // print('Pokemon #$index: ${pokemonModel.results[index].name}');
+
+      String number = PokemonNumbers.setThreeNumbers(index + 1);
+
       pokemonsList.add(
         Result(
             name: pokemonModel.results[index].name,
             url: pokemonModel.results[index].url,
             image:
                 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index + 1}.png',
+            fullImage:
+                'https://assets.pokemon.com/assets/cms2/img/pokedex/full/$number.png',
             type: info.types!),
       );
     }
-
-    // for (Result element in pokemonModel.results) {
-    //   // print(element);
-    //   pokemonsList.add(element);
-    //   yield pokemonsList;
-    // }
-
-    // for (String pokemon in POKEMONS) {
-    //   pokemons.add(pokemon);
-
-    //   yield pokemons;
-    // }
   }
 
   final StreamController<int> _pokemonsContador = StreamController<int>();
   Stream<int> get pokemonsContadorStream => _pokemonsContador.stream;
+
+  StreamController<Result> _poke = StreamController<Result>();
+  Stream<Result> get selectedPokemonStream => _poke.stream;
 
   // Constructor
   PokemonsBloc() {
@@ -82,9 +90,14 @@ class PokemonsBloc {
     getPokemnos.listen((pokemonsList) {
       _pokemonsContador.add(pokemonsList.length);
     });
+
+    getSelectedPokemon.listen((_selectedPokemon) {
+      _poke.add(_selectedPokemon);
+    });
   }
 
   dispose() {
     _pokemonsContador.close();
+    _poke.close();
   }
 }

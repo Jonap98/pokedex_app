@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex_app/src/services/navigation_service.dart';
-import 'package:pokedex_app/src/ui/screens/pokemons_screen.dart';
+import 'package:pokedex_app/src/bloc/auth_bloc.dart';
 import 'package:pokedex_app/src/ui/widgets/custom_elevated_button.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -62,8 +61,7 @@ class LoginScreen extends StatelessWidget {
                     CustomElevatedButton(
                       text: 'Ingresar',
                       onPressed: () {
-                        Navigator.pushReplacementNamed(
-                            context, 'pokemons_screen');
+                        AuthBloc().register(context, userCtrl.text);
                       },
                     ),
                   ],

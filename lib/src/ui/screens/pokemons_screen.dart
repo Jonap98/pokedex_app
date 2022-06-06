@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pokedex_app/src/bloc/pokemon_bloc.dart';
 import 'package:pokedex_app/src/helpers/color_types.dart';
 import 'package:pokedex_app/src/models/pokemon_model.dart';
+import 'package:pokedex_app/src/ui/widgets/pokemon_card.dart';
 
 class PokemonsScreen extends StatelessWidget {
   final pokemonsBloc = PokemonsBloc();
@@ -15,6 +16,9 @@ class PokemonsScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -80,71 +84,11 @@ class PokemonsScreen extends StatelessWidget {
                                   childAspectRatio: 1.5, crossAxisCount: 2),
                           itemCount: pokemons.length,
                           itemBuilder: (_, index) {
-                            return Container(
-                                margin: EdgeInsets.all(5),
-                                width: size.width * 0.4,
-                                padding: EdgeInsets.all(10),
-                                height: size.width * 0.3,
-                                child: Stack(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          pokemons[index].name,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 10),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Colors.black.withOpacity(0.3),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            pokemons[index]
-                                                .type!
-                                                .first
-                                                .type!
-                                                .name!,
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Positioned(
-                                      right: -10.0,
-                                      bottom: -10.0,
-                                      child: Stack(
-                                        children: [
-                                          Image(
-                                            width: size.width * 0.2,
-                                            color: Colors.blue.withOpacity(0.3),
-                                            colorBlendMode: BlendMode.modulate,
-                                            image: AssetImage(
-                                                'assets/pokeball_icon.png'),
-                                          ),
-                                          Image.network(
-                                            pokemons[index].image!,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  color: ColorTypes.setColor(
-                                      pokemons[index].type!.first.type!.name!),
-                                ));
+                            return PokemonCard(
+                              size: size,
+                              pokemons: pokemons,
+                              index: index,
+                            );
                           },
                         );
                       },

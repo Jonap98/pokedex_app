@@ -45,18 +45,21 @@ class Result {
     required this.name,
     required this.url,
     this.image,
+    this.fullImage,
     this.type,
   });
 
   String name;
   String url;
   String? image;
+  String? fullImage;
   List<Type>? type;
 
   factory Result.fromMap(Map<String, dynamic> json) => Result(
         name: json["name"],
         url: json["url"],
         image: json["image"],
+        fullImage: json["fullImage"],
         type: json["type"],
       );
 
@@ -64,6 +67,7 @@ class Result {
         "name": name,
         "url": url,
         "image": image,
+        "fullImage": fullImage,
         "type": type,
       };
 }
