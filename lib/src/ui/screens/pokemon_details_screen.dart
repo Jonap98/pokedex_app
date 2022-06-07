@@ -16,7 +16,7 @@ class PokemonDetailsScreen extends StatelessWidget {
       body: Stack(
         children: [
           StreamBuilder(
-              stream: pokemonsBloc.selectedPokemonStream,
+              stream: pokemonsBloc.getPoke,
               builder: (_, AsyncSnapshot<Result> snapshot) {
                 return Container(
                   height: double.infinity,
@@ -78,7 +78,10 @@ class PokemonDetailsScreen extends StatelessWidget {
                               Container(
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 20),
-                                child: const TypeTag(index: 0, text: 'Type'),
+                                child: TypeTag(
+                                    index: 0,
+                                    text:
+                                        snapshot.data!.type!.first.type!.name!),
                               ),
                             ],
                           ),
@@ -89,6 +92,10 @@ class PokemonDetailsScreen extends StatelessWidget {
                         right: 0.0,
                         left: 0.0,
                         child: Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: size.width * 0.2,
+                            horizontal: 20,
+                          ),
                           height: size.height * 0.5,
                           decoration: const BoxDecoration(
                             color: Colors.white,
@@ -96,6 +103,21 @@ class PokemonDetailsScreen extends StatelessWidget {
                               topLeft: Radius.circular(25),
                               topRight: Radius.circular(25),
                             ),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: const [
+                                  Text('About'),
+                                  Text('Base States'),
+                                  Text('Evolutions'),
+                                  Text('Moves'),
+                                ],
+                              ),
+                              Divider(),
+                            ],
                           ),
                         ),
                       ),
@@ -111,11 +133,12 @@ class PokemonDetailsScreen extends StatelessWidget {
                       Positioned(
                         top: size.height * 0.2,
                         child: Container(
-                          height: size.width,
+                          alignment: Alignment.center,
+                          height: size.width * 0.8,
+                          width: size.width,
                           // color: Colors.redAccent,
                           child: Image.network(
-                            'https://assets.pokemon.com/assets/cms2/img/pokedex/full/001.png',
-                            // 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png',
+                            snapshot.data!.fullImage!,
                             fit: BoxFit.cover,
                           ),
                         ),

@@ -3,7 +3,9 @@ import 'package:pokedex_app/src/bloc/auth_bloc.dart';
 import 'package:pokedex_app/src/ui/widgets/custom_elevated_button.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  LoginScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class LoginScreen extends StatelessWidget {
                 ],
               ),
               child: Form(
+                key: formKey,
                 child: Column(
                   children: [
                     TextFormField(
@@ -56,11 +59,20 @@ class LoginScreen extends StatelessWidget {
                         label: 'Usuario',
                         icon: Icons.mail,
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Ingrese un usuario';
+                        }
+
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 10),
                     CustomElevatedButton(
                       text: 'Ingresar',
                       onPressed: () {
+                        if (!formKey.currentState!.validate()) return;
+
                         AuthBloc().register(context, userCtrl.text);
                       },
                     ),

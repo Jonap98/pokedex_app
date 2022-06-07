@@ -35,7 +35,6 @@ class CustomElevatedButton extends StatelessWidget {
         ),
         primary: isFilled ? color : Colors.grey,
         side: BorderSide(color: isFilled ? Colors.transparent : color),
-        // shape: const StadiumBorder(),
       ),
       onPressed: onPressed,
     );

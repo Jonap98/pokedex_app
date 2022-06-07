@@ -1,10 +1,13 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:pokedex_app/src/bloc/auth_bloc.dart';
 import 'package:pokedex_app/src/bloc/pokemon_bloc.dart';
 import 'package:pokedex_app/src/helpers/color_types.dart';
 import 'package:pokedex_app/src/models/pokemon_model.dart';
+import 'package:pokedex_app/src/providers/seleccion_provider.dart';
 import 'package:pokedex_app/src/ui/widgets/pokemon_card.dart';
+import 'package:provider/provider.dart';
 
 class PokemonsScreen extends StatelessWidget {
   final pokemonsBloc = PokemonsBloc();
@@ -14,10 +17,16 @@ class PokemonsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    bool isSelecting = false;
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        child: Icon(Icons.add),
+        onPressed: () {
+          (isSelecting == false) ? isSelecting = true : isSelecting = false;
+          Provider.of<SeleccionProvider>(context, listen: false)
+              .seleccion(isSelecting);
+        },
       ),
       body: SafeArea(
         child: Stack(
@@ -37,19 +46,7 @@ class PokemonsScreen extends StatelessWidget {
               children: [
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.menu),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
+                  child: CustomAppbar(isSelecting: isSelecting),
                 ),
                 StreamBuilder(
                     stream: pokemonsBloc.pokemonsContadorStream,
@@ -100,6 +97,58 @@ class PokemonsScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class CustomAppbar extends StatelessWidget {
+  const CustomAppbar({
+    Key? key,
+    required this.isSelecting,
+  }) : super(key: key);
+
+  final bool isSelecting;
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<SeleccionProvider>(context);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        (provider.isSelecting)
+            ? IconButton(
+                icon: const Icon(Icons.cancel_outlined),
+                onPressed: () {
+                  provider.seleccion(false);
+                  provider.clearList();
+                },
+              )
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  AuthBloc().logout(context);
+                },
+              ),
+        (provider.isSelecting)
+            ? Text('Seleccionando: ${provider.selectionList.length} pokemons')
+            : Text(''),
+        (provider.isSelecting)
+            ? IconButton(
+                icon: const Icon(Icons.done),
+                onPressed: () {
+                  provider.selectTeam(context, provider.selectionList);
+
+                  provider.seleccion(false);
+                },
+              )
+            : IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Navigator.pushNamed(context, 'team_screen');
+                },
+              ),
+      ],
     );
   }
 }
