@@ -1,15 +1,18 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex_app/src/bloc/auth_bloc.dart';
 import 'package:pokedex_app/src/bloc/pokemon_bloc.dart';
 import 'package:pokedex_app/src/helpers/color_types.dart';
 import 'package:pokedex_app/src/models/pokemon_model.dart';
-import 'package:pokedex_app/src/providers/seleccion_provider.dart';
+import 'package:pokedex_app/src/ui/widgets/my_appbar.dart';
 import 'package:pokedex_app/src/ui/widgets/pokemon_card.dart';
-import 'package:provider/provider.dart';
+import 'package:pokedex_app/src/ui/widgets/selectable_item_widget.dart';
 
 class PokemonsScreen extends StatelessWidget {
+  final gridController = DragSelectGridViewController();
+
   final pokemonsBloc = PokemonsBloc();
 
   PokemonsScreen({Key? key}) : super(key: key);
@@ -17,15 +20,16 @@ class PokemonsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    bool isSelecting = false;
+    bool isSelected = gridController.value.isSelecting;
+    final text = (isSelected)
+        ? '${gridController.value.amount} pokemons seleccionados'
+        : 'No pokemon selected';
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          (isSelecting == false) ? isSelecting = true : isSelecting = false;
-          Provider.of<SeleccionProvider>(context, listen: false)
-              .seleccion(isSelecting);
+          gridController.value = Selection({1});
         },
       ),
       body: SafeArea(
@@ -46,47 +50,52 @@ class PokemonsScreen extends StatelessWidget {
               children: [
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 10),
-                  child: CustomAppbar(isSelecting: isSelecting),
+                  child: MyAppbar(controller: gridController),
                 ),
-                StreamBuilder(
-                    stream: pokemonsBloc.pokemonsContadorStream,
-                    builder: (context, AsyncSnapshot<int> snapshot) {
-                      return Container(
-                        margin:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                        child: Text(
-                          'Pokedex',
-                          // 'Pokedex, mostrando: ${snapshot.data ?? 0}',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 30,
-                          ),
-                        ),
-                      );
-                    }),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: Text(
+                    'Pokedex',
+                    // 'Pokedex, mostrando: ${snapshot.data ?? 0}',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 30,
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
                     child: StreamBuilder(
                       stream: pokemonsBloc.getPokemnos,
+                      // builder: (_, AsyncSnapshot snapshot) {
                       builder: (_, AsyncSnapshot<List<Result>> snapshot) {
                         final pokemons = snapshot.data ?? [];
 
                         //GirdView
-                        return GridView.builder(
-                          scrollDirection: Axis.vertical,
+                        return DragSelectGridView(
+                          // return GridView.builder(
+                          // scrollDirection: Axis.vertical,
+                          gridController: gridController,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                   childAspectRatio: 1.5, crossAxisCount: 2),
                           itemCount: pokemons.length,
-                          itemBuilder: (_, index) {
-                            return PokemonCard(
-                              size: size,
-                              pokemons: pokemons,
-                              index: index,
-                            );
-                          },
+                          itemBuilder: (_, index, isSelected) =>
+                              SelectableItemWidget(
+                            isSelected: isSelected,
+                            size: size,
+                            pokemons: pokemons,
+                            index: index,
+                          ),
+                          // itemBuilder: (_, index) {
+                          //   return PokemonCard(
+                          //     size: size,
+                          //     pokemons: pokemons,
+                          //     index: index,
+                          //   );
+                          // },
                         );
                       },
                     ),

@@ -21,21 +21,127 @@ class PokemonsBloc {
     yield pokemonInfoModel.types![0].type!.name!;
   }
 
-  final Result _selectedPokemon =
-      Result(name: '', url: '', image: '', fullImage: '', type: []);
+  selectTeam(BuildContext context, List<int> pokemonIndexes) async {
+    final prefs = await SharedPreferences.getInstance();
 
-  selectPokemon(Result pokemon) async* {
-    _selectedPokemon.name = pokemon.name;
-    _selectedPokemon.url = pokemon.url;
-    _selectedPokemon.image = pokemon.image;
-    _selectedPokemon.fullImage = pokemon.fullImage;
-    _selectedPokemon.type = pokemon.type;
+    await prefs.setInt('one', pokemonIndexes[0]);
+    await prefs.setInt('two', pokemonIndexes[1]);
+    await prefs.setInt('three', pokemonIndexes[2]);
+    await prefs.setInt('four', pokemonIndexes[3]);
+    await prefs.setInt('five', pokemonIndexes[4]);
+    await prefs.setInt('six', pokemonIndexes[5]);
 
-    yield _selectedPokemon;
+    Navigator.pushNamed(context, 'team_screen');
   }
 
-  Stream<Result> get getSelectedPokemon async* {
-    yield _selectedPokemon;
+  List<int> _team = [];
+  getSharedTeam() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final List<int> teamList = [];
+
+    teamList.add(prefs.getInt('one')!);
+    teamList.add(prefs.getInt('two')!);
+    teamList.add(prefs.getInt('three')!);
+    teamList.add(prefs.getInt('four')!);
+    teamList.add(prefs.getInt('five')!);
+    teamList.add(prefs.getInt('six')!);
+
+    _team = teamList;
+  }
+
+  static PokemonInfoModel poke = PokemonInfoModel();
+  getPokemon(BuildContext context, String pokemonName) async {
+    Dio _dio = Dio();
+
+    final pokemon =
+        await _dio.get('https://pokeapi.co/api/v2/pokemon-form/$pokemonName');
+    poke = PokemonInfoModel.fromMap(pokemon.data);
+    Navigator.pushNamed(context, 'pokemon_details_screen');
+  }
+
+  Result selected =
+      Result(name: '', url: '', image: '', fullImage: '', type: []);
+  Stream<Result> get getPoke async* {
+    final temp = poke;
+
+    String number = PokemonNumbers.setThreeNumbers(poke.id!);
+
+    selected = Result(
+        name: poke.name!,
+        url: poke.pokemon!.url!,
+        image:
+            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png',
+        fullImage:
+            'https://assets.pokemon.com/assets/cms2/img/pokedex/full/$number.png',
+        type: poke.types);
+
+    yield selected;
+  }
+
+  Stream<List<Result>> get getTeam async* {
+    await getSharedTeam();
+
+    List<Result> pokemonsList = [];
+
+    Dio _dio = Dio();
+
+    for (int index = 0; index < _team.length; index++) {
+      final tipo = await _dio
+          .get('https://pokeapi.co/api/v2/pokemon-form/${_team[index]}');
+      PokemonInfoModel poke = PokemonInfoModel.fromMap(tipo.data);
+
+      yield pokemonsList;
+
+      String number = PokemonNumbers.setThreeNumbers(_team[index]);
+
+      pokemonsList.add(
+        Result(
+            name: poke.pokemon!.name!,
+            url: poke.pokemon!.url!,
+            image:
+                'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${_team[index]}.png',
+            fullImage:
+                'https://assets.pokemon.com/assets/cms2/img/pokedex/full/$number.png',
+            type: poke.types),
+      );
+    }
+  }
+
+  Stream<List<Result>> get get150 async* {
+    List<Result> pokemonsList = [];
+    PokemonModel pokemonModel = PokemonModel(
+      count: 0,
+      next: '',
+      previous: '',
+      results: [],
+    );
+
+    Dio _dio = Dio();
+
+    for (int index = 0; index < 150; index++) {
+      final tipo =
+          await _dio.get('https://pokeapi.co/api/v2/pokemon-form/${index + 1}');
+      PokemonInfoModel info = PokemonInfoModel();
+
+      info = PokemonInfoModel.fromMap(tipo.data);
+
+      String number = PokemonNumbers.setThreeNumbers(index + 1);
+
+      pokemonsList.add(
+        Result(
+            name: info.name!,
+            url: info.pokemon!.url!,
+            image:
+                'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index + 1}.png',
+            fullImage:
+                'https://assets.pokemon.com/assets/cms2/img/pokedex/full/$number.png',
+            type: info.types!),
+      );
+    }
+    // _dio.delete('https://pokeapi.co/api/v2/pokemon-form');
+    _dio.close();
+    yield pokemonsList;
   }
 
   static PokemonInfoModel poke = PokemonInfoModel();
@@ -75,7 +181,7 @@ class PokemonsBloc {
     );
 
     Dio _dio = Dio();
-    final resp = await _dio.get('https://pokeapi.co/api/v2/pokemon/?limit=150');
+    final resp = await _dio.get('https://pokeapi.co/api/v2/pokemon/?limit=15');
 
     pokemonModel = PokemonModel.fromMap(resp.data);
 
@@ -103,72 +209,28 @@ class PokemonsBloc {
     }
   }
 
-  List<String> _team = [];
-  getSharedTeam() async {
-    final prefs = await SharedPreferences.getInstance();
+  final StreamController<List<Result>> _pokemonsContador =
+      StreamController<List<Result>>();
+  Stream<List<Result>> get pokemonsContadorStream => _pokemonsContador.stream;
 
-    final List<String> teamList = [];
-
-    teamList.add(prefs.getString('one')!);
-    teamList.add(prefs.getString('two')!);
-    teamList.add(prefs.getString('three')!);
-    teamList.add(prefs.getString('four')!);
-    teamList.add(prefs.getString('five')!);
-    teamList.add(prefs.getString('six')!);
-
-    _team = teamList;
-  }
-
-  Stream<List<Result>> get getTeam async* {
-    await getSharedTeam();
-
-    List<Result> pokemonsList = [];
-
-    Dio _dio = Dio();
-
-    for (int index = 0; index < _team.length; index++) {
-      final resp = await _dio
-          .get('https://pokeapi.co/api/v2/pokemon-form/${_team[index]}');
-      PokemonInfoModel poke = PokemonInfoModel.fromMap(resp.data);
-
-      yield pokemonsList;
-
-      String number = PokemonNumbers.setThreeNumbers(poke.id!);
-
-      pokemonsList.add(
-        Result(
-            name: poke.pokemon!.name!,
-            url: poke.pokemon!.url!,
-            image:
-                'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.id}.png',
-            fullImage:
-                'https://assets.pokemon.com/assets/cms2/img/pokedex/full/$number.png',
-            type: poke.types),
-      );
-    }
-  }
-
-  final StreamController<int> _pokemonsContador = StreamController<int>();
-  Stream<int> get pokemonsContadorStream => _pokemonsContador.stream;
-
-  StreamController<Result> _poke = StreamController<Result>();
-  Stream<Result> get selectedPokemonStream => _poke.stream;
+  // final StreamController<Result> _poke = StreamController<Result>();
+  // Stream<Result> get pokeStream => _poke.stream;
 
   // Constructor
   PokemonsBloc() {
     // Cuando getPokemons emite, el listenr escucha ese nuevo listado y lo
     // añade al stream
     getPokemnos.listen((pokemonsList) {
-      _pokemonsContador.add(pokemonsList.length);
+      _pokemonsContador.add(pokemonsList);
     });
 
-    getSelectedPokemon.listen((_selectedPokemon) {
-      _poke.add(_selectedPokemon);
-    });
+    // getPoke.listen((selected) {
+    //   _poke.add(selected);
+    // });
   }
 
   dispose() {
     _pokemonsContador.close();
-    _poke.close();
+    // _poke.close();
   }
 }
