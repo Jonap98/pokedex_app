@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:pokedex_app/src/bloc/pokemon_bloc.dart';
+import 'package:pokedex_app/src/helpers/color_types.dart';
 import 'package:pokedex_app/src/models/pokemon_model.dart';
 import 'package:pokedex_app/src/ui/widgets/type_tag.dart';
 
@@ -11,17 +13,28 @@ class PokemonDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    // pokemonsBloc.getPokemon('$args');
 
     return Scaffold(
       body: Stack(
         children: [
           StreamBuilder(
-              stream: pokemonsBloc.selectedPokemonStream,
-              builder: (_, AsyncSnapshot<Result> snapshot) {
+              stream: pokemonsBloc.getPoke,
+              builder: (context, AsyncSnapshot<Result> snapshot) {
+                final pokemons = snapshot.data ??
+                    Result(
+                      name: '',
+                      url: '',
+                      image: '',
+                      fullImage: '',
+                      type: [],
+                    );
+
                 return Container(
                   height: double.infinity,
                   width: double.infinity,
-                  color: Colors.blue,
+                  color: ColorTypes.setColor(pokemons.type!.first.type!.name!)
+                      .withOpacity(0.7),
                   child: Stack(
                     children: [
                       Positioned(
@@ -66,7 +79,8 @@ class PokemonDetailsScreen extends StatelessWidget {
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 20),
                                 child: Text(
-                                  snapshot.data!.name,
+                                  pokemons.name,
+                                  // snapshot.data!.name,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 25,
@@ -78,7 +92,10 @@ class PokemonDetailsScreen extends StatelessWidget {
                               Container(
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 20),
-                                child: const TypeTag(index: 0, text: 'Type'),
+                                child: TypeTag(
+                                  index: 0,
+                                  text: pokemons.type!.first.type!.name!,
+                                ),
                               ),
                             ],
                           ),
@@ -109,15 +126,40 @@ class PokemonDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        top: size.height * 0.2,
+                        top: size.height * 0.15,
                         child: Container(
                           height: size.width,
                           // color: Colors.redAccent,
-                          child: Image.network(
-                            'https://assets.pokemon.com/assets/cms2/img/pokedex/full/001.png',
-                            // 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png',
+                          padding: EdgeInsets.all(20),
+                          // child: CachedNetworkImage(
+                          //   imageUrl: pokemons.fullImage!,
+                          //   placeholder: (context, url) => Center(
+                          //       child: CircularProgressIndicator(
+                          //     color: Colors.white,
+                          //   )),
+                          //   errorWidget: (context, url, error) =>
+                          //       Icon(Icons.error),
+                          // ),
+                          // child: Image.network(pokemons.image!),
+                          child: Image(
+                            filterQuality: FilterQuality.high,
+                            image: NetworkImage(
+                              pokemons.image!,
+                            ),
+                            // : NetworkImage(
+                            //     'https://i.pinimg.com/originals/d4/52/da/d452daacda184e8b3463441c6943d9dd.gif',
+                            //   ),
                             fit: BoxFit.cover,
                           ),
+                          // child: FadeInImage.assetNetwork(
+                          //   placeholder: 'assets/loading.gif',
+                          //   image: pokemons.image!,
+                          // ),
+                          // child: Image.network(
+                          //   // snapshot.data!.fullImage,
+                          //   pokemons.image!,
+                          //   fit: BoxFit.cover,
+                          // ),
                         ),
                       ),
                     ],

@@ -10,6 +10,14 @@ class AuthBloc {
     Navigator.pushReplacementNamed(context, 'pokemons_screen');
   }
 
+  logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.clear();
+
+    Navigator.pushReplacementNamed(context, 'login_screen');
+  }
+
   Stream<String> getSettings() async* {
     final prefs = await SharedPreferences.getInstance();
 
