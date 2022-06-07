@@ -11,6 +11,7 @@ class PokemonDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    TextStyle style1 = const TextStyle(color: Colors.grey);
 
     return Scaffold(
       body: Stack(
@@ -116,7 +117,66 @@ class PokemonDetailsScreen extends StatelessWidget {
                                   Text('Moves'),
                                 ],
                               ),
-                              Divider(),
+                              const Divider(),
+                              Container(
+                                padding: const EdgeInsets.only(left: 20),
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Species', style: style1),
+                                        const SizedBox(height: 10),
+                                        Text('Height', style: style1),
+                                        const SizedBox(height: 10),
+                                        Text('Weight', style: style1),
+                                        const SizedBox(height: 10),
+                                        Text('Abilities', style: style1),
+                                        const SizedBox(height: 10),
+                                        Text('Gender', style: style1),
+                                        const SizedBox(height: 10),
+                                        Text('Egg Groups', style: style1),
+                                        const SizedBox(height: 10),
+                                        Text('Abilities', style: style1),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 40),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('Speed'),
+                                        const SizedBox(height: 10),
+                                        const Text('2´3.6'),
+                                        const SizedBox(height: 10),
+                                        const Text('15.2 lbs'),
+                                        const SizedBox(height: 10),
+                                        const Text('Overgrow, Chlorophyl'),
+                                        const SizedBox(height: 10),
+                                        Row(
+                                          children: const [
+                                            Icon(
+                                              Icons.male,
+                                              color: Colors.blue,
+                                            ),
+                                            Text('87.5%'),
+                                            Icon(
+                                              Icons.female,
+                                              color: Colors.pink,
+                                            ),
+                                            Text('12.5%'),
+                                          ],
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text('Monster'),
+                                        SizedBox(height: 10),
+                                        Text('Grass'),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
