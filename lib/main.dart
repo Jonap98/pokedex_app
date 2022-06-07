@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex_app/src/providers/pokemon_provider.dart';
+import 'package:pokedex_app/src/providers/seleccion_provider.dart';
 import 'package:pokedex_app/src/routes/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,7 +25,7 @@ class AppState extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => PokemonProvider(),
+          create: (_) => SeleccionProvider(),
         ),
       ],
       child: MyApp(prefs: prefs),

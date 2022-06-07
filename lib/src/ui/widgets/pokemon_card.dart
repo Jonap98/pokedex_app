@@ -7,17 +7,13 @@ import 'package:pokedex_app/src/ui/widgets/type_tag.dart';
 import 'package:provider/provider.dart';
 
 class PokemonCard extends StatelessWidget {
-  final pokemonsBloc = PokemonsBloc();
-
   PokemonCard({
     Key? key,
-    this.isSelected = false,
     required this.size,
     required this.pokemons,
     required this.index,
   }) : super(key: key);
 
-  final bool isSelected;
   final Size size;
   final List<Result> pokemons;
   final int index;
@@ -29,15 +25,23 @@ class PokemonCard extends StatelessWidget {
         Provider.of<SeleccionProvider>(context).selectionList;
 
     return GestureDetector(
-      onTap: () async {
-        print(pokemons[index].name);
-        await pokemonsBloc.getPokemon(context, pokemons[index].name);
-        // print(pokemons[index].image);
-        // print(pokemons[index].fullImage);
-        // print(pokemons[index].url);
-        // print(pokemons[index].type![0].type!.name);
-        // Navigator.pushNamed(context, 'pokemon_details_screen');
-      },
+      onTap: (isSelecting)
+          ? () {
+              final selectionList =
+                  Provider.of<SeleccionProvider>(context, listen: false)
+                      .getSelection;
+
+              if (!selectionList.contains(pokemons[index].name)) {
+                Provider.of<SeleccionProvider>(context, listen: false)
+                    .selectPokemon(pokemons[index].name);
+              } else {
+                Provider.of<SeleccionProvider>(context, listen: false)
+                    .removePokemon(pokemons[index].name);
+              }
+            }
+          : () async {
+              await PokemonsBloc().getPokemon(context, pokemons[index].name);
+            },
       child: Container(
         margin: const EdgeInsets.all(5),
         width: size.width * 0.4,
@@ -83,19 +87,11 @@ class PokemonCard extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: (!isSelected)
-              ? ColorTypes.setColor(pokemons[index].type!.first.type!.name!)
-                  .withOpacity(0.7)
+          color: (isSelecting)
+              ? (selectionList.contains(pokemons[index].name))
+                  ? ColorTypes.setColor(pokemons[index].type!.first.type!.name!)
+                  : Colors.black12
               : ColorTypes.setColor(pokemons[index].type!.first.type!.name!),
-          boxShadow: (isSelected)
-              ? const [
-                  BoxShadow(
-                    offset: Offset(0, 5),
-                    color: Colors.black45,
-                    blurRadius: 0.5,
-                  )
-                ]
-              : null,
         ),
       ),
     );

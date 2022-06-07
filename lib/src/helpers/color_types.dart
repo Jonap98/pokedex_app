@@ -60,6 +60,6 @@ class ColorTypes {
         break;
     }
 
-    return color;
+    return color.withOpacity(0.7);
   }
 }
