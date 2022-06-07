@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pokedex_app/src/bloc/pokemon_bloc.dart';
+import 'package:pokedex_app/src/helpers/color_types.dart';
 import 'package:pokedex_app/src/models/pokemon_model.dart';
 import 'package:pokedex_app/src/ui/widgets/type_tag.dart';
 
@@ -11,18 +12,27 @@ class PokemonDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    TextStyle style1 = const TextStyle(color: Colors.grey);
 
     return Scaffold(
       body: Stack(
         children: [
           StreamBuilder(
               stream: pokemonsBloc.getPoke,
-              builder: (_, AsyncSnapshot<Result> snapshot) {
+              builder: (context, AsyncSnapshot<Result> snapshot) {
+                final pokemons = snapshot.data ??
+                    Result(
+                      name: '',
+                      url: '',
+                      image: '',
+                      fullImage: '',
+                      type: [],
+                    );
+
                 return Container(
                   height: double.infinity,
                   width: double.infinity,
-                  color: Colors.blue,
+                  color: ColorTypes.setColor(pokemons.type!.first.type!.name!)
+                      .withOpacity(0.7),
                   child: Stack(
                     children: [
                       Positioned(
@@ -67,7 +77,8 @@ class PokemonDetailsScreen extends StatelessWidget {
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 20),
                                 child: Text(
-                                  snapshot.data!.name,
+                                  pokemons.name,
+                                  // snapshot.data!.name,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 25,
@@ -80,9 +91,9 @@ class PokemonDetailsScreen extends StatelessWidget {
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 20),
                                 child: TypeTag(
-                                    index: 0,
-                                    text:
-                                        snapshot.data!.type!.first.type!.name!),
+                                  index: 0,
+                                  text: pokemons.type!.first.type!.name!,
+                                ),
                               ),
                             ],
                           ),
@@ -117,66 +128,7 @@ class PokemonDetailsScreen extends StatelessWidget {
                                   Text('Moves'),
                                 ],
                               ),
-                              const Divider(),
-                              Container(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: Row(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Species', style: style1),
-                                        const SizedBox(height: 10),
-                                        Text('Height', style: style1),
-                                        const SizedBox(height: 10),
-                                        Text('Weight', style: style1),
-                                        const SizedBox(height: 10),
-                                        Text('Abilities', style: style1),
-                                        const SizedBox(height: 10),
-                                        Text('Gender', style: style1),
-                                        const SizedBox(height: 10),
-                                        Text('Egg Groups', style: style1),
-                                        const SizedBox(height: 10),
-                                        Text('Abilities', style: style1),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 40),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text('Speed'),
-                                        const SizedBox(height: 10),
-                                        const Text('2´3.6'),
-                                        const SizedBox(height: 10),
-                                        const Text('15.2 lbs'),
-                                        const SizedBox(height: 10),
-                                        const Text('Overgrow, Chlorophyl'),
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          children: const [
-                                            Icon(
-                                              Icons.male,
-                                              color: Colors.blue,
-                                            ),
-                                            Text('87.5%'),
-                                            Icon(
-                                              Icons.female,
-                                              color: Colors.pink,
-                                            ),
-                                            Text('12.5%'),
-                                          ],
-                                        ),
-                                        SizedBox(height: 10),
-                                        Text('Monster'),
-                                        SizedBox(height: 10),
-                                        Text('Grass'),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              Divider(),
                             ],
                           ),
                         ),
@@ -191,14 +143,28 @@ class PokemonDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        top: size.height * 0.2,
+                        top: size.height * 0.15,
                         child: Container(
                           alignment: Alignment.center,
                           height: size.width * 0.8,
                           width: size.width,
                           // color: Colors.redAccent,
-                          child: Image.network(
-                            snapshot.data!.fullImage!,
+                          padding: EdgeInsets.all(20),
+                          // child: CachedNetworkImage(
+                          //   imageUrl: pokemons.fullImage!,
+                          //   placeholder: (context, url) => Center(
+                          //       child: CircularProgressIndicator(
+                          //     color: Colors.white,
+                          //   )),
+                          //   errorWidget: (context, url, error) =>
+                          //       Icon(Icons.error),
+                          // ),
+                          // child: Image.network(pokemons.image!),
+                          child: Image(
+                            filterQuality: FilterQuality.high,
+                            image: NetworkImage(
+                              pokemons.image!,
+                            ),
                             fit: BoxFit.cover,
                           ),
                         ),
