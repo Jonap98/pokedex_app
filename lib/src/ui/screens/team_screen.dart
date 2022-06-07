@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pokedex_app/src/bloc/pokemon_bloc.dart';
 import 'package:pokedex_app/src/models/pokemon_model.dart';
 import 'package:pokedex_app/src/ui/widgets/pokemon_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TeamScreen extends StatelessWidget {
   final pokemonsBloc = PokemonsBloc();
@@ -56,6 +57,7 @@ class TeamScreen extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 10),
                     child: StreamBuilder(
                       stream: pokemonsBloc.getTeam,
+                      // builder: (_, AsyncSnapshot snapshot) {
                       builder: (_, AsyncSnapshot<List<Result>> snapshot) {
                         final pokemons = snapshot.data ?? [];
 

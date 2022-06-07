@@ -5,22 +5,25 @@ import 'package:pokedex_app/src/bloc/auth_bloc.dart';
 import 'package:pokedex_app/src/bloc/pokemon_bloc.dart';
 import 'package:pokedex_app/src/helpers/color_types.dart';
 import 'package:pokedex_app/src/models/pokemon_model.dart';
-import 'package:pokedex_app/src/ui/widgets/my_appbar.dart';
+import 'package:pokedex_app/src/providers/pokemon_provider.dart';
 import 'package:pokedex_app/src/ui/widgets/pokemon_card.dart';
 import 'package:pokedex_app/src/ui/widgets/selectable_item_widget.dart';
+import 'package:provider/provider.dart';
 
-class PokemonsScreen extends StatelessWidget {
+class PokemonsScreenProvider extends StatelessWidget {
   final pokemonsBloc = PokemonsBloc();
 
-  PokemonsScreen({Key? key}) : super(key: key);
+  PokemonsScreenProvider({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final pokemonsList = Provider.of<PokemonProvider>(context).getPokemons();
+    //  Provider.of<PokemonProvider>(context, listen:false).pokemonsList;
+
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
         onPressed: () {},
       ),
       body: SafeArea(
@@ -57,8 +60,8 @@ class PokemonsScreen extends StatelessWidget {
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
-                    child: StreamBuilder(
-                      stream: pokemonsBloc.getPokemnos,
+                    child: FutureBuilder(
+                      future: pokemonsList,
                       // builder: (_, AsyncSnapshot snapshot) {
                       builder: (_, AsyncSnapshot<List<Result>> snapshot) {
                         final pokemons = snapshot.data ?? [];
